@@ -1,4 +1,5 @@
 import argparse
+import sys
 from cage.container import ContainerHandler
 
 
@@ -9,8 +10,13 @@ def main():
     parser.add_argument("-p", "--python", help="python version", action="store")
     args = parser.parse_args()
 
-    ContainerHandler.get_python_versions()
-    # TODO: Check if passed Python version is supported
+    ContainerHandler.check_docker_installed()
 
-    handler = ContainerHandler(args.name, args.python)
+    supported_python_versions = ContainerHandler.get_python_versions()
+    python_version = args.python if args.python is not None else ".".join(str(x) for x in sys.version_info[:2])
+
+    assert python_version in supported_python_versions, "Selected python version {} is not in the supported list: {}".\
+        format(python_version, supported_python_versions)
+
+    handler = ContainerHandler(args.name, python_version)
     handler.create_image()
