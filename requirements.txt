@@ -1,0 +1,5 @@
+docker-py==1.10.3
+docker-pycreds==0.2.1
+requests==2.10.0
+six==1.10.0
+websocket-client==0.37.0
