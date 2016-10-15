@@ -1,6 +1,7 @@
 import subprocess
 import os
 import re
+import io
 import urllib.request
 from docker import Client
 
@@ -61,19 +62,24 @@ class ContainerHandler:
         # TODO: Add check here
         pass
 
-    def create_image(self):
-        dockerfile_path = os.path.join("python", self.__python_version, "onbuild")
-        response = self.__client.build(path=dockerfile_path, tag=self.__image_name, rm=True)
+    def create_image(self, path):
+        dockerfile_content = """
+        FROM python:{}-onbuild
+        """.format(self.__python_version)
+
+        with open(os.path.join(path, "Dockerfile"), "w") as dockerfile:
+            dockerfile.write(dockerfile_content)
+
+        response = self.__client.build(path=path, tag=self.__image_name, rm=True)
         res = [line for line in response]
-        print(res)
+        return res
 
     def start(self, command):
         self.__container = self.__client.create_container(self.__image_name, command=command)
         self.__client.start(self.__container)
 
-        self.redirect_logs(self.__container)
+        return self.redirect_logs(self.__container)
 
     def redirect_logs(self, container):
         logs = self.__client.logs(container, stream=True)
-        for line in logs:
-            print(line)
+        return logs

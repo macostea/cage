@@ -17,8 +17,3 @@ def main():
 
     assert python_version in supported_python_versions, "Selected python version {} is not in the supported list: {}".\
         format(python_version, supported_python_versions)
-
-    handler = ContainerHandler(args.name, python_version)
-    handler.create_image()
-
-    handler.start("python test_app/main.py")
