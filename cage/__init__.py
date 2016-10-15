@@ -20,3 +20,5 @@ def main():
 
     handler = ContainerHandler(args.name, python_version)
     handler.create_image()
+
+    handler.start("python test_app/main.py")
