@@ -1,7 +1,5 @@
-import subprocess
 import os
 import re
-import io
 import urllib.request
 from docker import Client
 
