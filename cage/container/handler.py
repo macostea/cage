@@ -11,13 +11,15 @@ class DockerNotInstalledError(Exception):
 
 
 class ContainerHandler:
-    def __init__(self, name, python_version):
-        self.__name = name
-        self.__python_version = python_version
+    def __init__(self, cage_path, app_path):
+        self.__path = cage_path
+        self.__app_path = app_path
+        self.__name = os.path.basename(os.path.normpath(cage_path))
         self.__client = Client(base_url='unix://var/run/docker.sock')
+
         self.__container = None
 
-        self.__image_name = "cage/" + self.__name + self.__python_version
+        self.__image_name = "cage/" + self.__name
 
     @staticmethod
     def get_python_versions():
@@ -60,24 +62,36 @@ class ContainerHandler:
         # TODO: Add check here
         pass
 
-    def create_image(self, path):
-        dockerfile_content = """
-        FROM python:{}-onbuild
-        """.format(self.__python_version)
+    def create_image(self, python_version=None):
+        if python_version is not None and not os.path.exists(os.path.join(self.__app_path, "Dockerfile")):
+            dockerfile_content = "FROM python:{}\n" \
+                                 "RUN mkdir -p /usr/src/app\n" \
+                                 "WORKDIR /usr/src/app\n" \
+                .format(python_version)
+            with open(os.path.join(self.__app_path, "Dockerfile"), "w") as dockerfile:
+                dockerfile.write(dockerfile_content)
 
-        with open(os.path.join(path, "Dockerfile"), "w") as dockerfile:
-            dockerfile.write(dockerfile_content)
+        response = self.__client.build(path=self.__app_path, tag=self.__image_name, rm=True)
 
-        response = self.__client.build(path=path, tag=self.__image_name, rm=True)
-        res = [line for line in response]
-        return res
+        return response
 
     def start(self, command):
-        self.__container = self.__client.create_container(self.__image_name, command=command)
-        self.__client.start(self.__container)
+        res = self.create_image()
+        for line in res:
+            print(line)
+        container = self.__client.create_container(self.__image_name, command=command)
+        self.__client.start(container)
 
-        return self.redirect_logs(self.__container)
+        return self.redirect_logs(container)
+
+    def add_files(self, path):
+        self.__write_to_dockerfile("COPY {} /usr/src/app\n".format(path))
 
     def redirect_logs(self, container):
         logs = self.__client.logs(container, stream=True)
         return logs
+
+    def __write_to_dockerfile(self, line):
+        with open(os.path.join(self.__app_path, "Dockerfile"), "a+") as dockerfile:
+            if line not in dockerfile.read():
+                dockerfile.write(line)
