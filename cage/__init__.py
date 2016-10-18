@@ -6,6 +6,7 @@ from cage.env import EnvHandler
 
 
 def main():
+    # TODO: Find a better way to organize the arguments
     parser = argparse.ArgumentParser(description="Develop and run your python application in clean Docker environments")
     parser.add_argument("command", help="the command you want to run", action="store")
     parser.add_argument("name", help="the full path to your cage", action="store")
@@ -13,6 +14,7 @@ def main():
     parser.add_argument("-p", "--python", help="python version", action="store")
     parser.add_argument("-f", "--files", help="path to your app files to copy into the new cage", action="store")
     parser.add_argument("-s", "--script", help="the script you want to run", action="store")
+    parser.add_argument("-r", "--requirements", help="path to the requirements file", action="store")
     args = parser.parse_args()
 
     command_list = args.command.split(":")
@@ -57,3 +59,8 @@ def handle_container_command(command, opts):
         result = container_handler.start(opts.script)
         for line in result:
             print(line)
+
+    elif command == "deps":
+        container_handler = ContainerHandler(opts.name, os.getcwd())
+
+        container_handler.install_deps(opts.requirements)

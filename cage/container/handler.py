@@ -87,6 +87,9 @@ class ContainerHandler:
     def add_files(self, path):
         self.__write_to_dockerfile("COPY {} /usr/src/app".format(path))
 
+    def install_deps(self, requirements_file):
+        self.__write_to_dockerfile("RUN pip install --no-cache-dir -r {}".format(requirements_file))
+
     def redirect_logs(self, container):
         logs = self.__client.logs(container, stream=True)
         return logs

@@ -37,3 +37,7 @@ class EnvHandler:
         shutil.copyfile(os.path.join(binaries_path, "python.sh"), os.path.join(destinaton_binaries_path, "python"))
         old_stat = os.stat(os.path.join(destinaton_binaries_path, "python"))
         os.chmod(os.path.join(destinaton_binaries_path, "python"), old_stat.st_mode | stat.S_IEXEC)
+
+        shutil.copyfile(os.path.join(binaries_path, "pip.sh"), os.path.join(destinaton_binaries_path, "pip"))
+        old_stat = os.stat(os.path.join(destinaton_binaries_path, "pip"))
+        os.chmod(os.path.join(destinaton_binaries_path, "pip"), old_stat.st_mode | stat.S_IEXEC)
