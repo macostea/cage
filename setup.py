@@ -1,23 +1,9 @@
 import sys
+from setuptools import setup, find_packages
+
 
 if sys.version_info[:2] < (3, 5):
     sys.exit('Cage requires Python 3.5 or higher.')
-
-try:
-    from setuptools import setup
-
-    setup_params = {
-        "entry_points": {
-            "console_scripts": ["cage=cage:main"],
-        },
-        "zip_safe": False,
-    }
-
-except ImportError:
-    from distutils.core import setup
-    script = "scripts/cage"
-    setup_params = {"scripts": [script]}
-
 
 try:
     import pypandoc
@@ -25,9 +11,16 @@ try:
 except (IOError, ImportError):
     long_description = "Develop and run your Python applications in clean Docker environments"
 
+setup_params = {
+    "entry_points": {
+        "console_scripts": ["cage=cage:main"],
+    },
+    "zip_safe": False,
+}
+
 setup(
-    name="Cage",
-    version="0.1",
+    name="PYCage",
+    version="0.1.1",
     description="Develop and run your Python applications in clean Docker environments",
     long_description=long_description,
     url="https://github.com/macostea/cage",
@@ -43,7 +36,8 @@ setup(
     ],
     keywords="setuptools deployment installation distutils docker",
     py_modules=['cage'],
-    packages=["cage"],
+    packages=find_packages(exclude=["tests", "test_app"]),
     install_requires=["docker-py"],
+    include_package_data=True,
     **setup_params
 )

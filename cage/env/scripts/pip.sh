@@ -6,6 +6,6 @@ CAGE_NAME=`basename $CAGE_ENV`
 # Only support the requirements file for now
 
 if [ "-r" == "$2" ]; then
-    cage.py app:addfiles ${CAGE_NAME} -f \.
-    cage.py app:deps ${CAGE_NAME} -r $3
+    cage app:addfiles ${CAGE_NAME} -f \.
+    cage app:deps ${CAGE_NAME} -r $3
 fi

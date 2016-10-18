@@ -45,7 +45,7 @@ def handle_container_command(command, opts):
             print(line)
 
         # Copy the binaries
-        env_handler = EnvHandler(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts"))
+        env_handler = EnvHandler(os.path.join(os.path.dirname(os.path.realpath(__file__)), "env", "scripts"))
         env_handler.init_env(opts.name)
 
     elif command == "addfiles":

@@ -33,7 +33,7 @@ _OLD_PATH="$PATH"
 
 # TODO: Remove hardcoded path and replace with some sort of install path
 
-PATH="$CAGE_ENV:/Users/mihaic/Developer/cage:$PATH"
+PATH="$CAGE_ENV:$PATH"
 export PATH
 
 _OLD_PS1="$PS1"
