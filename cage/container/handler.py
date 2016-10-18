@@ -85,13 +85,18 @@ class ContainerHandler:
         return self.redirect_logs(container)
 
     def add_files(self, path):
-        self.__write_to_dockerfile("COPY {} /usr/src/app\n".format(path))
+        self.__write_to_dockerfile("COPY {} /usr/src/app".format(path))
 
     def redirect_logs(self, container):
         logs = self.__client.logs(container, stream=True)
         return logs
 
     def __write_to_dockerfile(self, line):
-        with open(os.path.join(self.__app_path, "Dockerfile"), "a+") as dockerfile:
-            if line not in dockerfile.read():
+        with open(os.path.join(self.__app_path, "Dockerfile"), "r") as dockerfile:
+            dockerfile.seek(0)
+            line_exists = line in dockerfile.read()
+
+        if not line_exists:
+            with open(os.path.join(self.__app_path, "Dockerfile"), "a") as dockerfile:
                 dockerfile.write(line)
+                dockerfile.write("\n")
