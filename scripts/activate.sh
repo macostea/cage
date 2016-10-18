@@ -5,7 +5,7 @@ export CAGE_ENV
 
 _OLD_PATH="$PATH"
 
-# TODO: Remove hardcoded path with some sort of install path
+# TODO: Remove hardcoded path and replace with some sort of install path
 
 PATH="$CAGE_ENV:/Users/mihaic/Developer/cage:$PATH"
 export PATH
