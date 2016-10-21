@@ -36,6 +36,13 @@ This command should be very familiar to [virtualenv](https://virtualenv.pypa.io/
 
 Running a script with the caged python binary will build a new Docker image with your project files, create a new container using that image and run the python command you specified.
 
+### Expose a TCP Port
+```bash
+(<name_of_your_cage>)$ PORT=5000 python <file.py>
+```
+
+To expose a TCP port from the cage, use the PORT environment variable
+
 ### Working with requirements
 The current version of Cage only supports dependencies **written in a requirements file**:
 ```bash
@@ -47,6 +54,11 @@ You *cannot* use any other pip commands with this version. This includes simple 
 (<name_of_your_cage>)$ pip install <dependency>
 ```
 
+### Stop a cage
+```bash
+(<name_of_your_cage>)$ cage app:stop <name_of_your_cage>
+```
+
 ### Deactivating the environment
 ```bash
 (<name_of_your_cage)$ deactivate
@@ -56,9 +68,10 @@ This will return your environment to the state it was in before activating the C
 
 ## Caveats
 1. **THIS IS A WORK IN PROGRESS. DO NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING** 
-2. You can **only** use pip with a requirements file. No other pip commands are supported.
-3. No ports are exposed from the docker container at the moment
+2. You can **only** use pip with a requirements file. No other pip commands are supported
+3. You can only expose **ONE TCP** port from the container and it will be mapped to the same port number on the host
 4. Environment variables are not sent to the docker container
+5. Tested only on OSX and Linux
 
 ## License
 Cage is released under the MIT license. See LICENSE for details.
