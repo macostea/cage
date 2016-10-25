@@ -20,7 +20,7 @@ setup_params = {
 
 setup(
     name="PYCage",
-    version="0.1.1",
+    version="0.2.0",
     description="Develop and run your Python applications in clean Docker environments",
     long_description=long_description,
     url="https://github.com/macostea/cage",
