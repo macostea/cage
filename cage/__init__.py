@@ -15,6 +15,7 @@ def main():
     parser.add_argument("-f", "--files", help="path to your app files to copy into the new cage", action="store")
     parser.add_argument("-s", "--script", help="the script you want to run", action="store")
     parser.add_argument("-r", "--requirements", help="path to the requirements file", action="store")
+    parser.add_argument("-e", "--environment", help="path to the environment file to pass to the cage", action="store")
     args = parser.parse_args()
 
     command_list = args.command.split(":")
@@ -27,19 +28,19 @@ def main():
 
 
 def handle_container_command(command, opts):
-    supported_python_versions = ContainerHandler.get_python_versions()
+    if not os.path.exists(opts.name):
+        os.makedirs(opts.name)
+
+    container_handler = ContainerHandler(opts.name, os.getcwd())
+
+    supported_python_versions = container_handler.get_python_versions()
     python_version = opts.python if opts.python is not None else ".".join(str(x) for x in sys.version_info[:2])
 
-    assert python_version in supported_python_versions, "Selected python version {} is not in the supported list: {}".\
+    assert python_version in supported_python_versions, "Selected python version {} is not in the supported list: {}". \
         format(python_version, supported_python_versions)
 
     if command == "create":
         # Create the new image
-        container_handler = ContainerHandler(opts.name, os.getcwd())
-
-        if not os.path.exists(opts.name):
-            os.makedirs(opts.name)
-
         res = container_handler.create_image(python_version)
         for line in res:
             print(line)
@@ -49,18 +50,15 @@ def handle_container_command(command, opts):
         env_handler.init_env(opts.name)
 
     elif command == "addfiles":
-        container_handler = ContainerHandler(opts.name, os.getcwd())
-
         container_handler.add_files(opts.files)
 
     elif command == "run":
-        container_handler = ContainerHandler(opts.name, os.getcwd())
-
-        result = container_handler.start(opts.script)
+        result = container_handler.start(opts.script, opts.environment)
         for line in result:
             print(line)
 
-    elif command == "deps":
-        container_handler = ContainerHandler(opts.name, os.getcwd())
+    elif command == "stop":
+        container_handler.stop()
 
+    elif command == "deps":
         container_handler.install_deps(opts.requirements)

@@ -1,7 +1,9 @@
 import os
 import re
 import urllib.request
+import pickle
 from docker import Client
+
 
 # TODO: Check if Docker daemon is running. Start it if it's not.
 
@@ -17,17 +19,16 @@ class ContainerHandler:
         self.__name = os.path.basename(os.path.normpath(cage_path))
         self.__client = Client(base_url='unix://var/run/docker.sock')
 
-        self.__container = None
+        self.__container = self.__get_container()
 
         self.__image_name = "cage/" + self.__name
 
-    @staticmethod
-    def get_python_versions():
+    def get_python_versions(self):
         # TODO: Download in a better place. Current dir does not seem like a good idea
 
         manifest_url = "https://raw.githubusercontent.com/docker-library/official-images/master/library/python"
 
-        local_manifest_path = "manifest.txt"
+        local_manifest_path = os.path.join(self.__path, "manifest.txt")
 
         if not os.path.exists(local_manifest_path):
             response = urllib.request.urlopen(manifest_url)
@@ -75,20 +76,48 @@ class ContainerHandler:
 
         return response
 
-    def start(self, command):
+    def start(self, command, env=None):
         res = self.create_image()
         for line in res:
             print(line)
-        container = self.__client.create_container(self.__image_name, command=command)
-        self.__client.start(container)
 
-        return self.redirect_logs(container)
+        regex = re.compile("^PORT=(?P<port>\d+$)")
+        ports = []
+        env_list = []
+
+        if env is not None:
+            with open(env, "r") as env_file:
+                for line in env_file:
+                    # Add env line to env list
+                    env_list.append(line.rstrip("\n"))
+
+                    # Check if PORT is defined in the env file
+                    match = regex.search(line)
+                    if match is not None:
+                        ports.append(int(match.group("port")))
+
+        host_config = self.__client.create_host_config(port_bindings=dict(zip(ports, ports)))
+
+        container = self.__client.create_container(self.__image_name, command=command, ports=ports,
+                                                   host_config=host_config, environment=env_list)
+        self.__set_container(container)
+
+        self.__client.start(self.__container)
+
+        return self.redirect_logs(self.__container)
+
+    def stop(self):
+        if self.__container is not None:
+            self.__client.stop(self.__container)
 
     def add_files(self, path):
         self.__write_to_dockerfile("COPY {} /usr/src/app".format(path))
 
     def install_deps(self, requirements_file):
-        self.__write_to_dockerfile("RUN pip install --no-cache-dir -r {}".format(requirements_file))
+        if os.path.exists(requirements_file):
+            self.__write_to_dockerfile("RUN pip install --no-cache-dir -r {}".format(requirements_file))
+        else:
+            raise FileNotFoundError(requirements_file)
 
     def redirect_logs(self, container):
         logs = self.__client.logs(container, stream=True)
@@ -103,3 +132,18 @@ class ContainerHandler:
             with open(os.path.join(self.__app_path, "Dockerfile"), "a") as dockerfile:
                 dockerfile.write(line)
                 dockerfile.write("\n")
+
+    def __set_container(self, container):
+        self.__container = container
+
+        with open(os.path.join(self.__path, "container"), "wb") as container_file:
+            container_file.write(pickle.dumps(container))
+
+    def __get_container(self):
+        container = None
+
+        if os.path.exists(os.path.join(self.__path, "container")):
+            with open(os.path.join(self.__path, "container"), "rb") as container_file:
+                container = pickle.load(container_file)
+
+        return container

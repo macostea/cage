@@ -20,6 +20,10 @@ deactivate () {
         unset _OLD_PS1
     fi
 
+    CAGE_NAME=`basename $CAGE_ENV`
+    cage app:stop ${CAGE_NAME}
+
+    unset CAGE_NAME
     unset CAGE_ENV
     unset -f deactivate
 }
@@ -33,7 +37,7 @@ _OLD_PATH="$PATH"
 
 # TODO: Remove hardcoded path and replace with some sort of install path
 
-PATH="$CAGE_ENV:$PATH"
+PATH="$CAGE_ENV/__BIN_NAME__:$PATH"
 export PATH
 
 _OLD_PS1="$PS1"

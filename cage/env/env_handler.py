@@ -13,11 +13,11 @@ class EnvHandler:
         if not os.path.exists(new_bin_path):
             os.makedirs(new_bin_path)
 
-        self.__update_activate_script(os.path.join(self.__binaries_path, "activate.sh"), new_bin_path)
+        self.__update_activate_script(os.path.join(self.__binaries_path, "activate.sh"), env_path, new_bin_path)
 
         self.__copy_other_binaries(self.__binaries_path, new_bin_path)
 
-    def __update_activate_script(self, activate_script_path, destination_script_path):
+    def __update_activate_script(self, activate_script_path, env_path, destination_script_path):
         new_activate_script_path = os.path.join(destination_script_path, "activate")
 
         # Copy the file
@@ -28,7 +28,8 @@ class EnvHandler:
         with open(new_activate_script_path, "r") as file:
             activate_data = file.read()
 
-        activate_data = activate_data.replace("__CAGE_ENV__", destination_script_path)
+        activate_data = activate_data.replace("__CAGE_ENV__", env_path)
+        activate_data = activate_data.replace("__BIN_NAME__", "bin")
 
         with open(new_activate_script_path, "w") as file:
             file.write(activate_data)
