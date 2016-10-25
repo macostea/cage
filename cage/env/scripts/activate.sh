@@ -20,6 +20,10 @@ deactivate () {
         unset _OLD_PS1
     fi
 
+    CAGE_NAME=`basename $CAGE_ENV`
+    cage app:stop ${CAGE_NAME}
+
+    unset CAGE_NAME
     unset CAGE_ENV
     unset -f deactivate
 }

@@ -15,9 +15,7 @@ def main():
     parser.add_argument("-f", "--files", help="path to your app files to copy into the new cage", action="store")
     parser.add_argument("-s", "--script", help="the script you want to run", action="store")
     parser.add_argument("-r", "--requirements", help="path to the requirements file", action="store")
-    parser.add_argument("-P", "--port",
-                        help="the port to open for your app; the port will be mapped to the same port on host",
-                        action="store")
+    parser.add_argument("-e", "--environment", help="path to the environment file to pass to the cage", action="store")
     args = parser.parse_args()
 
     command_list = args.command.split(":")
@@ -55,7 +53,7 @@ def handle_container_command(command, opts):
         container_handler.add_files(opts.files)
 
     elif command == "run":
-        result = container_handler.start(opts.script, [opts.port])
+        result = container_handler.start(opts.script, opts.environment)
         for line in result:
             print(line)
 

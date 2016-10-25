@@ -76,19 +76,30 @@ class ContainerHandler:
 
         return response
 
-    def start(self, command, ports=None):
+    def start(self, command, env=None):
         res = self.create_image()
         for line in res:
             print(line)
 
-        host_config = None
-        int_ports = None
-        if ports is not None:
-            int_ports = [int(x) for x in ports]
-            host_config = self.__client.create_host_config(port_bindings=dict(zip(int_ports, int_ports)))
+        regex = re.compile("^PORT=(?P<port>\d+$)")
+        ports = []
+        env_list = []
 
-        container = self.__client.create_container(self.__image_name, command=command, ports=int_ports,
-                                                   host_config=host_config)
+        if env is not None:
+            with open(env, "r") as env_file:
+                for line in env_file:
+                    # Add env line to env list
+                    env_list.append(line.rstrip("\n"))
+
+                    # Check if PORT is defined in the env file
+                    match = regex.search(line)
+                    if match is not None:
+                        ports.append(int(match.group("port")))
+
+        host_config = self.__client.create_host_config(port_bindings=dict(zip(ports, ports)))
+
+        container = self.__client.create_container(self.__image_name, command=command, ports=ports,
+                                                   host_config=host_config, environment=env_list)
         self.__set_container(container)
 
         self.__client.start(self.__container)
