@@ -88,6 +88,3 @@ venv/
 
 # PyCharm
 .idea/
-
-# Local cache files
-manifest.txt
