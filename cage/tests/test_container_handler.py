@@ -2,7 +2,6 @@ import unittest
 import os
 import shutil
 import threading
-import queue
 import requests
 from cage.container import ContainerHandler
 
@@ -47,7 +46,9 @@ class TestContainerHandler(unittest.TestCase):
 
         self.addCleanup(self.cleanup, test_path, test_cage_path, handler)
 
-        self.q = queue.Queue()
+        # Make sure we have deps installed before starting the test
+        handler.start("python --version")
+
         self.stop_thread = False
 
         t = threading.Thread(target=self.parallel_start, args=[handler, os.path.join(test_path, "ENV")])
