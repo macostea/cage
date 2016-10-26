@@ -114,7 +114,7 @@ class ContainerHandler:
         self.__write_to_dockerfile("COPY {} /usr/src/app".format(path))
 
     def install_deps(self, requirements_file):
-        if os.path.exists(requirements_file):
+        if os.path.exists(os.path.join(self.__app_path, requirements_file)):
             self.__write_to_dockerfile("RUN pip install --no-cache-dir -r {}".format(requirements_file))
         else:
             raise FileNotFoundError(requirements_file)
