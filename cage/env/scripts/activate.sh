@@ -35,8 +35,6 @@ export CAGE_ENV
 
 _OLD_PATH="$PATH"
 
-# TODO: Remove hardcoded path and replace with some sort of install path
-
 PATH="$CAGE_ENV/__BIN_NAME__:$PATH"
 export PATH
 
