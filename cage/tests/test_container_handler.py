@@ -47,7 +47,7 @@ class TestContainerHandler(unittest.TestCase):
         self.addCleanup(self.cleanup, test_path, test_cage_path, handler)
 
         # Make sure we have deps installed before starting the test
-        handler.start("python --version")
+        handler.start("python --version", os.path.join(test_path, "ENV"))
 
         self.stop_thread = False
 
@@ -61,18 +61,6 @@ class TestContainerHandler(unittest.TestCase):
 
         r = requests.get("http://localhost:5000/main")
         self.assertEqual(r.text, "This is a test app running in the Python cage")
-
-    def test_python_versions(self):
-        test_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_app")
-        test_cage_path = os.path.join(test_path, "test_manifest_cage")
-
-        handler = ContainerHandler(test_cage_path, test_path)
-
-        self.addCleanup(self.cleanup, test_path, None, handler)
-
-        versions = handler.get_python_versions()
-
-        self.assertEqual(["2.7", "3.3", "3.4", "3.5", "3.6"], versions)
 
     def test_add_files(self):
         test_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_app")
