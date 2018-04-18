@@ -26,7 +26,7 @@ class TestContainerHandler(unittest.TestCase):
         response_list = [line for line in response]
 
         last_line = response_list[-1].decode("utf-8")
-        self.assertTrue("Successfully built" in last_line)
+        self.assertTrue("Successfully" in last_line)
 
     def test_container_start(self):
         test_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_app")

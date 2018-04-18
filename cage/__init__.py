@@ -60,5 +60,8 @@ def handle_container_command(command, opts):
     elif command == "stop":
         container_handler.stop()
 
+    elif command == "rm":
+        container_handler.rm()
+
     elif command == "deps":
         container_handler.install_deps(opts.requirements)

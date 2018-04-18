@@ -47,14 +47,16 @@ class ContainerHandler:
 
     @staticmethod
     def __parse_manifest_file(manifest):
-        regex = re.compile("^Directory: (?P<version>\d.\d)$")
+        regex = re.compile("^SharedTags: (?P<version>.*)$")
 
         versions = []
 
         for line in manifest:
             match = regex.search(line)
             if match is not None:
-                versions.append(match.group("version"))
+                matched_versions = match.group("version")
+                for version in matched_versions.split(", "):
+                    versions.append(version)
 
         return versions
 
@@ -109,6 +111,10 @@ class ContainerHandler:
     def stop(self):
         if self.__container is not None:
             self.__client.stop(self.__container)
+
+    def rm(self):
+        if self.__container is not None:
+            self.__client.remove_container(self.__container)
 
     def add_files(self, path):
         self.__write_to_dockerfile("COPY {} /usr/src/app".format(path))
